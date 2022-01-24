@@ -1,0 +1,56 @@
+name: OpenAI Classification
+description: This bit shows how to use OpenAI's Classification endpoint to decide if a user's input was Yes or No.
+steps:
+  - id: start
+    type: respondAndWait
+    response:
+      type: activity
+      value:
+        text: Greetings!
+    children:
+      - id: openAIClassification
+        type: webhook
+        method: 'POST'
+        url: https://api.openai.com/v1/classifications
+        headers:
+          Authorization: Bearer <<REPLACE WITH YOUR OPENAI TOKEN>>
+        body:
+          labels: ["affirm", "deny"]
+          query: "{{systemVariables.inputText}}"
+          search_model: ada
+          model: curie
+          file: <<REPLACE WITH YOUR OPENAI FILE ID>>
+          max_examples: 3
+        resultVariablePath: webhook.openai
+        children:
+          - id: error
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError != false && systemVariables.inputText.toLowerCase() != "no"
+            response:
+              type: activity
+              value: 
+                text: Not sure what you mean 🤷
+            goto: start
+          - id: respond
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError === false || systemVariables.inputText.toLowerCase() === "no"
+            response:
+              type: jsExpression
+              value: |
+                var response
+                if (systemVariables.inputText.toLowerCase() === "no") {
+                  response = {"text": "You said no 👎"}
+                } else {
+                  var intent = webhook.openai.selected_examples.sort(function(a,b){return b.score - a.score})[0].label
+                  if (intent === "Deny") {
+                    response = {"text": "You said no 👎"}
+                  } else {
+                    response = {"text": "You said yes 👍"}
+                  }
+                }
+                response
+            goto: start
