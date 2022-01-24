@@ -1,0 +1,156 @@
+name: Verify-identity-bot
+description: This HML snippet verifies the user's identity by sending an email/sms and only continuing the chat once the included link is pressed, thus verifying we have valid contact details for the user before we engage with them.
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            Greetings... before we proceed I just need to verify your identity. I can do this by sending you either an email or an SMS. Which would you prefer?
+          suggestedActions:
+            actions: 
+              - type: messageBack
+                title: Email
+                text: Email
+              - type: messageBack
+                title: SMS
+                text: SMS
+            inputState: disabled
+    children:
+      - type: respond
+        conditions: 
+          - inputText: Email
+        goto: verifyViaEmail
+      - type: respond
+        conditions: 
+          - inputText: SMS
+        goto: verifyViaSMS     
+
+  # Verify via email
+  - id: verifyViaEmail
+    type: respondAndWait
+    isPotentialStartStepConfig: false
+    responses:
+      type: activity
+      values:
+        - text: |
+            Please provide your name and email address 👇
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form:
+              inputs:
+                # NOTE: the email type will ensure client-side validation of the email address, so the user can't enter something that's invalid
+                - type: text
+                  name: fullName
+                  label: "Full name"
+                - type: email
+                  name: email
+                  label: "Email address"
+    children:
+      # set the system variable for fullName and email, so that the user's identity is stored
+      - type: respond
+        addVariables:
+          - path: systemVariables.core.customer.email
+            value: "{{ systemVariables.temp.formResponseData.email }}"
+          - path: systemVariables.core.customer.fullName
+            value: "{{ systemVariables.temp.formResponseData.fullName }}"
+        responses:
+          type: activity
+          values:
+            - text: I'm sending an email to {{ systemVariables.temp.formResponseData.email }} – please press the link in it to confirm your identity.
+              suggestedActions:
+                actions: []
+                inputState: disabled
+                # we leave the input state disabled, so the bot cannot continue until the unique link in the email we're about to send has been pressed
+        children:    
+          - id: sendEmail
+            type: nudgeAndWait
+            channel: email
+            details:
+              # replace support@humanise.ai with your humanise.ai registered email address
+              from: support@humanise.ai
+              subject: This is an email
+              bodyType: html
+              # replace the https://humanise.ai/test with whatever website your humanise.ai chat will be installed on
+              body: >
+                Hi {{ systemVariables.core.customer.fullName }},
+                Please press this link to verify your identity and continue the conversation: [[@async link('https://humanise.ai/test', 'VERIFIED_BY_EMAIL', 3600) /]]
+                Kind regards,
+                The Humanise.AI Team
+              text: >
+                Hi {{ systemVariables.core.customer.fullName }},
+                Please press this link to verify your identity and continue the conversation: [[@async link('https://humanise.ai/test', 'VERIFIED_BY_EMAIL', 3600) /]]
+                Kind regards,
+                The Humanise.AI Team
+            children:
+              - id: hitAfterEmailNudge
+                type: respondAndWait
+                conditions:
+                  - inputText: "?botEntryPoint=VERIFIED_BY_EMAIL"
+                responses:
+                  type: activity
+                  values:
+                    - text: Here's an activity after an email...
+                  
+  # Verify via SMS
+  - id: verifyViaSMS
+    type: respondAndWait
+    isPotentialStartStepConfig: false
+    responses:
+      type: activity
+      values:
+        - text: |
+            Please provide your name and mobile phone number 👇
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form:
+              inputs:
+                # NOTE: the phoneNumber type will ensure client-side validation of the phone number, so the user can't enter something that's invalid
+                - type: text
+                  name: fullName
+                  label: "Full name"
+                - type: phoneNumber
+                  name: phoneNumber
+                  label: "Mobile phone number"
+    children:
+      # set the system variable for fullName and phoneNumber, so that the user's identity is stored
+      - type: respond
+        addVariables:
+          - path: systemVariables.core.customer.phoneNumber
+            value: "{{ systemVariables.temp.formResponseData.phoneNumber__formatted }}"
+          - path: systemVariables.core.customer.fullName
+            value: "{{ systemVariables.temp.formResponseData.fullName }}"
+        responses:
+          type: activity
+          values:
+            - text: I'm sending an SMS to {{ systemVariables.temp.formResponseData.phoneNumber__formatted }} – please press the link in it to confirm your identity.
+              suggestedActions:
+                actions: []
+                inputState: disabled
+                # we leave the input state disabled, so the bot cannot continue until the unique link in the SMS we're about to send has been pressed
+        children:    
+          - id: sendSMS
+            type: nudgeAndWait
+            channel: sms
+            details:
+              # replace +123456 with your humanise.ai registered sms number
+              from: "+123456"
+              # replace the https://humanise.ai/test with whatever website your humanise.ai chat will be installed on
+              body: >
+                Hi {{ systemVariables.core.customer.fullName }},
+                Please press this link to verify your identity and continue the conversation: [[@async link('https://humanise.ai/test', 'VERIFIED_BY_SMS', 3600) /]]
+                The Humanise.AI Team
+            children:
+              - id: hitAfterSMSNudge
+                type: respondAndWait
+                conditions:
+                  - inputText: "?botEntryPoint=VERIFIED_BY_SMS"
+                responses:
+                  type: activity
+                  values:
+                    - text: Here's an activity after an SMS...
