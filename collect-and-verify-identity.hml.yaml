@@ -95,7 +95,7 @@ steps:
                 responses:
                   type: activity
                   values:
-                    - text: Here's an activity after an email...
+                    - text: "Thank you, {{ systemVariables.core.customer.fullName }}, I verified your identity via Email at {{ systemVariables.core.customer.email }}"
                   
   # Verify via SMS
   - id: verifyViaSMS
@@ -155,4 +155,4 @@ steps:
                 responses:
                   type: activity
                   values:
-                    - text: Here's an activity after an SMS...
+                    - text: "Thank you, {{ systemVariables.core.customer.fullName }}, I verified your identity via SMS at {{ systemVariables.core.customer.phoneNumber }}"
