@@ -1,5 +1,5 @@
-name: Verify-identity-bot
-description: This HML snippet verifies the user's identity by sending an email/sms and only continuing the chat once the included link is pressed, thus verifying we have valid contact details for the user before we engage with them.
+name: Collect-and-verify-identity
+description: This HML snippet will only engage once it's verified that it has a working email or sms for the user.
 steps:
   - id: start
     type: respondAndWait
@@ -72,8 +72,9 @@ steps:
             channel: email
             details:
               # replace support@humanise.ai with your humanise.ai registered email address
+              # as no email provided in a to: the email will be sent to the registered email address of this user (ie, systemVariables.core.customer.email)
               from: support@humanise.ai
-              subject: This is an email
+              subject: "{{ systemVariables.core.organization.name }} is requesting that you verify your identity"
               bodyType: html
               # replace the https://humanise.ai/test with whatever website your humanise.ai chat will be installed on
               body: >
@@ -139,6 +140,7 @@ steps:
             channel: sms
             details:
               # replace +123456 with your humanise.ai registered sms number
+              # as no phone number provided in a to: the email will be sent to the registered phone number of this user (ie, systemVariables.core.customer.phoneNumber)
               from: "+123456"
               # replace the https://humanise.ai/test with whatever website your humanise.ai chat will be installed on
               body: >
