@@ -1,0 +1,28 @@
+name: Let-it-snow
+description: This HML snippet will make it snow in chatland!
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            Greetings... press the button to make it snow!
+          suggestedActions:
+            actions: 
+              - type: messageBack
+                title: text
+                text: "☃️ Let it snow! ☃️"
+            inputState: disabled
+    children:
+      - type: respond
+        responses:
+          type: activity
+          values:
+            # adding two snowmen to the response makes it snow!
+            - text: Look - it's snowing! ☃️☃️        
+              suggestedActions:
+                actions: []
+                inputState: disabled

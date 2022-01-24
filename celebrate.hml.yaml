@@ -1,0 +1,28 @@
+name: Celebrate
+description: This HML snippet celebrate with confetti in chatland!
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            Greetings... press to party!
+          suggestedActions:
+            actions: 
+              - type: messageBack
+                title: text
+                text: "🎉🎊 Let's Party 🎉🎊"
+            inputState: disabled
+    children:
+      - type: respond
+        responses:
+          type: activity
+          values:
+            # adding 🎉🎊 to the response makes creates the confetti!
+            - text: Congratulations! 🎉🎊       
+              suggestedActions:
+                actions: []
+                inputState: disabled
