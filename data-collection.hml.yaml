@@ -1,0 +1,82 @@
+name: Data Collection Bot
+description: This is a simple example of using an HML bot to collect data
+steps:
+  - id: collect_food_prefs
+    type: respondAndWait
+    responses:
+      type: activity
+      values:
+        - text: |
+            Please complete the following information 👇 and then press send.
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form: 
+              inputs:
+                - type: select
+                  name: cuisine
+                  initialValue: "Any"
+                  label: "Your favorite food"
+                  required: false
+                  options:
+                    - label: "🥘 Curry"
+                      value: "curry"
+                    - label: "🥗 Salad"
+                      value: "Salad"
+                    - label: "🍔 Burgers"
+                      value: "burgers"
+                    - label: "🍕 Pizza"
+                      value: "Pizza"
+                - type: optionButtons
+                  label: Do you enjoy spicey food?
+                  name: spicey
+                  options:
+                    - label: Yes
+                      value: yes
+                    - label: No
+                      value: no
+                - type: text
+                  label: Describe a good xmas dinner.
+                  name: xmas
+    children:
+    - id: store_food
+      type: respond
+      addVariables:
+        - path: data_collected.food
+          value: "{{ systemVariables.temp.formResponseData }}"
+      goto: collect_fav_colour
+    - id: collect_fav_colour
+      type: respondAndWait
+      responses:
+        type: activity
+        values:
+          - text: |
+              What's your favorite colour?
+            suggestedActions:
+              actions:
+                - type: messageBack
+                  title: 🟢 Green
+                  text: green
+                - type: messageBack
+                  title: 🔴 Red
+                  text: red
+                - type: messageBack
+                  title: 🔵 Blue
+                  text: blue
+                - type: messageBack
+                  title: 🟡 Yellow
+                  text: yellow
+      children:
+      - id: store_colour
+        type: respond
+        addVariables:
+          - path: data_collected.colour
+            value: "{{ systemVariables.inputText }}"
+        goto: write_event
+      
+      # write all the data we collected into an event - this will show it in the humanise.ai dashboard on the customer timeline
+      - id: write_event
+        type: respond
+        events:
+          - module: core
+            name: "{{ systemVariables.data_collected }}"
