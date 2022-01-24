@@ -1,0 +1,339 @@
+name: Indie Food Bot
+description: This is an indie food bot, that uses AirTable as a content store - play with it here https://humanise.ai/margate.html
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            <div class="quote">
+              <span class="main">
+                Let's find some great indie food!
+              </span>
+            </div>
+          suggestedActions:
+            actions: []
+            inputState: disabled
+        - text: |
+            <div>
+              <span class="details">
+                ❤️ Indie food is crafted by people with a passion for their craft, not companies.
+              </span>
+            </div>
+          suggestedActions:
+            actions: []
+            inputState: disabled
+        - text: |
+            <div>
+              <span class="details">
+                🙌 I've collected together some of the best indie food joints in Margate, hand selected because they do something special – better than your average chain.
+              </span>
+            <div>
+          suggestedActions:
+            actions: 
+              - type: messageBack
+                title: ":hand-pointing: Press to start"
+                text: Start
+            inputState: disabled
+    children: 
+      - id: findSomeFood
+        type: respond
+        responses:
+          type: activity
+          values:
+            - text: |
+                <div>
+                  <span class="acknowledgement">
+                    Let's find some food!
+                  </span>
+                </dv>
+              suggestedActions:
+                actions: []
+                inputState: disabled
+        goto: menu
+
+  - id: menu
+    type: respondAndWait
+    responses:
+      type: activity
+      values:
+        - text: |
+            <div class="quote">
+              <span class="main">
+                Choose your food
+              </span>
+            </div>
+          suggestedActions:
+            actions: []
+            inputState: disabled
+        - text: |
+            <div>
+              <span class="details">
+                Choose one or more criteria by using the drop down's below 👇 then press send.
+              </span>
+            </div>
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form: 
+              inputs:
+                - type: select
+                  name: cuisine
+                  initialValue: "Any"
+                  label: "Type of food"
+                  required: false
+                  options:
+                    - label: "🤷 Any"
+                      value: "Any"
+                    - label: "🥕 Vegetarian"
+                      value: "Vegetarian"
+                    - label: "🥗 Vegan"
+                      value: "Vegan"
+                    - label: "🍱 Sushi"
+                      value: "Sushi"
+                    - label: "🐠 Seafood"
+                      value: "Seafood"
+                    - label: "🥘 Tapas"
+                      value: "Tapas"
+                    - label: "🌮 Tacos"
+                      value: "Tacos"
+                    - label: "🍔 Burgers"
+                      value: "Burgers"
+                    - label: "☕️ Tea + Coffee"
+                      value: "Tea + Coffee"
+                    - label: "🦞 Shellfish"
+                      value: "Shellfish"
+                    - label: "🍻 Pub grub"
+                      value: "Pub grub"
+                    - label: "🍳 Cafe"
+                      value: "Cafe"
+                    - label: "🍕 Pizza"
+                      value: "Pizza"
+                    - label: "🍟 Fish + Chips"
+                      value: "Fish + Chips"
+                    - label: "🌾 Asian"
+                      value: "Asian"
+                    - label: "🇬🇧 British"
+                      value: "British"
+                    - label: "🇮🇳 Indian"
+                      value: "Indian"
+                    - label: "🇮🇹 Italian"
+                      value: "Italian"
+                    - label: "🇯🇵 Japanese"
+                      value: "Japanese"
+                    - label: "🇺🇸 American"
+                      value: "American"
+                    - label: "🇸🇪 Swedish"
+                      value: "Swedish"
+                    - label: "🇯🇲 Jamaican"
+                      value: "Jamaican"
+                - type: select
+                  name: style
+                  initialValue: "Any"
+                  label: "Style of eating"
+                  required: false
+                  options:
+                    - label: "🤷 Any"
+                      value: "Any"
+                    - label: "🚶‍♂️ Take away"
+                      value: "Take away"
+                    - label: "🪑 Informal sit down"
+                      value: "Informal sit down"
+                    - label: "🍺 Pub / Bar"
+                      value: "Pub / Bar"
+                    - label: "🍽 Formal sit down"
+                      value: "Formal sit down"
+                - type: select
+                  name: price
+                  initialValue: "Any"
+                  label: "Price range"
+                  required: false
+                  options:
+                    - label: "🤷 Any"
+                      value: "Any"
+                    - label: "💰 Cheap eats"
+                      value: "Cheap eats"
+                    - label: "💰💰 Mid range"
+                      value: "Mid range"
+                    - label: "💰💰💰 Fine dining"
+                      value: "Fine dining"
+                - type: select
+                  name: dining_location
+                  initialValue: "Any"
+                  label: "Dining Location"
+                  required: false
+                  options:
+                    - label: "🤷 Any"
+                      value: "Any"
+                    - label: "👉 Inside"
+                      value: "Inside"
+                    - label: "👈 Outside"
+                      value: "Outside"
+                - type: select
+                  name: meals
+                  initialValue: "Any"
+                  label: "Time of day"
+                  required: false
+                  options:
+                    - label: "🤷 Any"
+                      value: "Any"
+                    - label: "🕘 Breakfast"
+                      value: "Breakfast"
+                    - label: "🕚 Brunch"
+                      value: "Brunch"
+                    - label: "🕛 Lunch"
+                      value: "Lunch"
+                    - label: "🕒 All day"
+                      value: "All day"
+                    - label: "🕖 Dinner"
+                      value: "Dinner"
+          
+    children:
+      - id: create_search
+        type: respond
+        addVariables:
+          - path: 'somePath'
+            value: 'two'
+          - path: searchString
+            type: jsExpression
+            value: |
+              const { temp } = systemVariables
+              const searches = []
+              if (temp.formResponseData.cuisine && temp.formResponseData.cuisine !== "" && temp.formResponseData.cuisine !== "Any") {
+                searches.push (`find("${temp.formResponseData.cuisine.toLowerCase()}", cuisines)`)
+              }
+              if (temp.formResponseData.price && temp.formResponseData.price !== "" && temp.formResponseData.price !== "Any") {
+                searches.push (`find("${temp.formResponseData.price}", price)`)
+              }
+              if (temp.formResponseData.style && temp.formResponseData.style !== "" && temp.formResponseData.style !== "Any") {
+                searches.push (`find("${temp.formResponseData.style.toLowerCase()}", style)`)
+              }
+              if (temp.formResponseData.meals && temp.formResponseData.meals !== "" && temp.formResponseData.meals !== "Any") {
+                searches.push (`find("${temp.formResponseData.meals.toLowerCase()}", meals)`)
+              }
+              if (temp.formResponseData.dining_location && temp.formResponseData.dining_location !== "" && temp.formResponseData.dining_location !== "Any") {
+                searches.push (`find("${temp.formResponseData.dining_location.toLowerCase()}", dining_location)`)
+              }
+              const searchString = "AND(" + searches.join() + ")"
+              searchString
+        events:
+          - module: core
+            name: search
+            detailLevel: 1
+            cuisine: "{{systemVariables.temp.formResponseData.cuisine}}"
+            price: "{{systemVariables.temp.formResponseData.price}}"
+            style: "{{systemVariables.temp.formResponseData.style}}"
+            meals: "{{systemVariables.temp.formResponseData.meals}}"
+            dining_location: "{{systemVariables.temp.formResponseData.dining_location}}"
+        goto: call_webhook
+
+  - id: call_webhook
+    type: webhook
+    method: 'GET'
+    # !!! Don't forget to replace <<REPLACE WITH YOUR AIRTABLE API LINK>> with the link that AirTable gives you!
+    url: <<REPLACE WITH YOUR AIRTABLE API LINK>>
+    headers:
+      Content-type: application/json
+      # !!! Don't forget to replace <<YOUR AIRTABLE KEY>> with the key that AirTable gives you!
+      Authorization: Bearer <<YOUR AIRTABLE KEY>>
+    queryParams:
+      maxRecords: 20
+      filterByFormula: "{{searchString}}"
+    resultVariablePath: webhook.response
+    children:
+      - id: no_search_results
+        type: respondAndWait
+        conditions:
+          - js> webhook.response.records.length == 0
+        responses:
+          type: activity
+          values:
+            - text: |
+                <div>
+                  <span class="acknowledgement">
+                    Sorry, I couldn't find anything that matched your requirements.
+                  </span>
+                </div>
+              suggestedActions:
+                actions: 
+                  - type: messageBack
+                    title: "Try another search"
+                    text: Menu
+                inputState: disabled
+        children:
+          - id: noResultsGotoMenu
+            type: respond
+            goto: menu
+
+      - id: show_search_results
+        conditions:
+          - js> webhook.response.records.length > 0
+        type: respondAndWait
+        response: 
+          type: jsExpression
+          value: |
+            var herocards = []
+            for (const item of webhook.response.records) {
+                var buttons = []
+                if (item.fields.website) {
+                  buttons.push( {
+                      "type": "openUrl",
+                      "title": "Website",
+                      "value": item.fields.website
+                  })
+                }
+                if (item.fields.googleMapsUrl) {
+                  buttons.push( {
+                      "type": "openUrl",
+                      "title": "Google Maps",
+                      "value": item.fields.googleMapsUrl
+                  })
+                }
+                if (item.fields.facebook) {
+                  buttons.push( {
+                      "type": "openUrl",
+                      "title": "Facebook",
+                      "value": "https://www.facebook.com/" + item.fields.facebook
+                  })
+                }
+                if (item.fields.instagram) {
+                  buttons.push( {
+                      "type": "openUrl",
+                      "title": "Instagram",
+                      "value": "https://www.instagram.com/" + item.fields.instagram
+                  })
+                }
+                if (item.fields.twitter) {
+                  buttons.push( {
+                      "type": "openUrl",
+                      "title": "Twitter",
+                      "value": "https://www.twitter.com/" +item.fields.twitter
+                  })
+                }
+
+                herocard = {
+                    "contentType":"application/vnd.humanise-ai.card.hero",
+                    "contentVersion":"1",
+                    "content": {
+                        "title": item.fields.Name,
+                        "buttons": buttons,
+                        "subtitle": item.fields.description,
+                        "imageUrl": item.fields.hero_image[0].url
+                    }
+                }
+                herocards.push(herocard)
+            }
+            var response = {
+              "text": "<div><span class=\"acknowledgement\">Here's some options I found for you...</span></div>",
+              "attachments": {
+                herocards
+              }
+            }
+            response
+        children:
+          - id: resultsGotoMenu
+            type: respond
+            goto: menu

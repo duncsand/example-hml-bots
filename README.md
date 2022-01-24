@@ -9,3 +9,4 @@ A selection of HML scripts that do cool or useful things
 - [Let it snow](/let-it-snow.hml.yaml) - this bot makes it snow in chatland
 - [Data Collection]() - this bot collects information through a series of questions and forms and stores that information in an event
 - [Human Task]() - this bot raises a human tast in the Humanise.AI dashboard
+- [Query AirTable](/airtable.hml.yaml) - the source code for our Margate Indie Food Bot uses Air Table as a content store. Airtable makes a great database for a bot and this bot shows how to make queries direct from your bot to Airtable
