@@ -1,0 +1,94 @@
+name: OpenAI Completions
+description: This bot shows how to use OpenAI's Completions endpoint to decide if a user's input was positive or negative.
+steps:
+  - id: start
+    type: respondAndWait
+    response:
+      type: activity
+      value:
+        text: Greetings!
+    children:
+      - id: openAIClassification
+        type: webhook
+        method: 'POST'
+        url: https://api.openai.com/v1/engines/davinci/completions
+        headers:
+          # !!! Don't forget to replace <<REPLACE WITH YOUR OPENAI TOKEN>> with your OpenAI token!
+          Authorization: Bearer <<REPLACE WITH YOUR OPENAI TOKEN>>
+        body:
+          prompt: |
+            Classify sentences as "positive", "negative", "neutral" or "something else".
+
+            Sentence: yes
+            Classification: positive.
+            ###
+            Sentence: no
+            Classification: negative.
+            ###
+            Sentence: do it
+            Classification: positive.
+            ###
+            Sentence: nope
+            Classification: negative.
+            ###
+            Sentence: not sure
+            Classification: neutral.
+            ###
+            Sentence: dunno
+            Classification: neutral.
+            ###
+            Sentence: what's the time?
+            Classification: something else.
+            ###
+            Sentence: get me a beer
+            Classification: something else.
+            ###
+            Sentence: I love you
+            Classification: something else.
+            ###
+            Sentence: what's the name of the prime minisiter of the UK?
+            Classification: something else.
+            ###
+            Sentence: {{systemVariables.inputText}}
+          temperature: 0.7
+          max_tokens: 64
+          top_p: 1
+          frequency_penalty: 0
+          presence_penalty: 0
+          stop:
+            - "."
+        resultVariablePath: webhook.openai
+        children:
+          - id: error
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError != false && systemVariables.inputText.toLowerCase() != "no"
+            response:
+              type: activity
+              value: 
+                text: Something went wrong 🔥
+            goto: start
+          - id: respond
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError === false || systemVariables.inputText.toLowerCase() === "no"
+            response:
+              type: jsExpression
+              value: |
+                var response
+                if (webhook.openai.choices[0].text.includes("Classification: negative")) {
+                  response = {"text": "You said no 👎"}
+                } 
+                if (webhook.openai.choices[0].text.includes("Classification: positive")) {
+                  response = {"text": "You said yes 👍"}
+                }
+                if (webhook.openai.choices[0].text.includes("Classification: neutral")) {
+                    response = {"text": "You're not sure 🤔"}
+                }
+                if (webhook.openai.choices[0].text.includes("Classification: something else")) {
+                    response = {"text": "Not sure what you're on about 🤷"}
+                }
+                response
+            goto: start

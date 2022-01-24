@@ -1,5 +1,5 @@
 name: OpenAI Classification
-description: This bit shows how to use OpenAI's Classification endpoint to decide if a user's input was Yes or No.
+description: This bot shows how to use OpenAI's Classification endpoint to decide if a user's input was Yes or No.
 steps:
   - id: start
     type: respondAndWait
@@ -10,15 +10,18 @@ steps:
     children:
       - id: openAIClassification
         type: webhook
+        # to use the OpenAI classification service you first need upload a file of classifications to OpenAI - checkout the details at https://beta.openai.com/docs/guides/classifications
         method: 'POST'
         url: https://api.openai.com/v1/classifications
         headers:
+          # !!! Don't forget to replace <<REPLACE WITH YOUR OPENAI TOKEN>> with your OpenAI token!
           Authorization: Bearer <<REPLACE WITH YOUR OPENAI TOKEN>>
         body:
           labels: ["affirm", "deny"]
           query: "{{systemVariables.inputText}}"
           search_model: ada
           model: curie
+          # !!! Don't forget to replace <<REPLACE WITH YOUR OPENAI FILE ID>> with id that OpenAI gave you when you uploaded your classification file!
           file: <<REPLACE WITH YOUR OPENAI FILE ID>>
           max_examples: 3
         resultVariablePath: webhook.openai
