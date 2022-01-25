@@ -6,7 +6,7 @@ steps:
     response:
       type: activity
       value:
-        text: Greetings!
+        text: Greetings! Tell me yes or no, however you'd like to express it.
     children:
       - id: HuggingFaceZeroShotClassification
         type: webhook
@@ -22,6 +22,7 @@ steps:
             candidate_labels:
               - yes
               - no
+              - not sure
         resultVariablePath: webhook.huggingFace
         children:
           - id: error
@@ -43,10 +44,16 @@ steps:
               type: jsExpression
               value: |
                 var response
-                if (webhook.huggingFace.labels[0] === "no") {
-                  response = {"text": "You said no 👎"}
-                } else {
-                  response = {"text": "You said yes 👍"}
+                switch(webhook.huggingFace.labels[0]) {
+                  case "yes":
+                    response = {"text": "You said no 👎"}
+                    break
+                  case "no":
+                    response = {"text": "You said yes 👍"}
+                    break
+                  default:
+                    response = {"text": "You weren't sure 🤔"}
+                    break
                 }
                 response
             goto: start
