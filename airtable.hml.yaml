@@ -328,9 +328,7 @@ steps:
             }
             var response = {
               "text": "<div><span class=\"acknowledgement\">Here's some options I found for you...</span></div>",
-              "attachments": {
-                herocards
-              }
+              "attachments": herocards
             }
             response
         children:
