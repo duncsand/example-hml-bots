@@ -1,0 +1,52 @@
+name: Zero Shot Classification
+description: This bot uses the Hugging Face Zero Shot Classification endpoint to determine intent of user's input - without *any* training data !
+steps:
+  - id: start
+    type: respondAndWait
+    response:
+      type: activity
+      value:
+        text: Greetings!
+    children:
+      - id: HuggingFaceZeroShotClassification
+        type: webhook
+        method: 'POST'
+        url: https://api-inference.huggingface.co/models/facebook/bart-large-mnli
+        headers:
+          # !!! Don't forget to replace <<YOUR HUGGING FACE TOKEN>> with the token you get from Hugging Face here: https://huggingface.co/settings/token
+          Authorization: Bearer <<YOUR HUGGING FACE TOKEN>>
+        body:
+          inputs: |
+            {{systemVariables.inputText}}
+          parameters:
+            candidate_labels:
+              - yes
+              - no
+        resultVariablePath: webhook.huggingFace
+        children:
+          - id: error
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError != false
+            response:
+              type: activity
+              value: 
+                text: Something went wrong 🔥
+            goto: start
+          - id: respond
+            type: respond
+            conditions: 
+              - type: jsExpression
+                value: webhookError === false
+            response:
+              type: jsExpression
+              value: |
+                var response
+                if (webhook.huggingFace.labels[0] === "no") {
+                  response = {"text": "You said no 👎"}
+                } else {
+                  response = {"text": "You said yes 👍"}
+                }
+                response
+            goto: start
