@@ -45,10 +45,10 @@ steps:
               value: |
                 var response
                 switch(webhook.huggingFace.labels[0]) {
-                  case "yes":
+                  case "no":
                     response = {"text": "You said no 👎"}
                     break
-                  case "no":
+                  case "yes":
                     response = {"text": "You said yes 👍"}
                     break
                   default:
