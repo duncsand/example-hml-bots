@@ -195,8 +195,6 @@ steps:
       - id: create_search
         type: respond
         addVariables:
-          - path: 'somePath'
-            value: 'two'
           - path: searchString
             type: jsExpression
             value: |
