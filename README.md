@@ -9,6 +9,6 @@ A selection of HML scripts that do cool or useful things
 - [Celebrate](/celebrate.hml.yaml) - this bot celebrates with confetti
 - [Let it snow](/let-it-snow.hml.yaml) - this bot makes it snow in chatland
 - [Data Collection](/data-collection.hml.yaml) - this bot collects information through a series of questions and forms and stores that information in an event
-- [Human Task]() - this bot raises a human tast in the Humanise.AI dashboard
+- [Human Task](/task.hml.yaml) - this bot raises a human tast in the Humanise.AI dashboard
 - [Query AirTable](/airtable.hml.yaml) - the source code for our Margate Indie Food Bot uses Air Table as a content store. Airtable makes a great database for a bot and this example shows how to make queries direct from HML to Airtable
 - [Entities](/entities.hml.yaml) - our internal entity detection works for amounts of money, credit card numbers, distances, durations, email addresses, numbers, ordinals, phone numbers, quatities, temperatures, dates / times, urls and volumes. This example looks for dates.

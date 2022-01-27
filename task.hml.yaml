@@ -1,0 +1,39 @@
+name: Task bot
+description: This HML bot will raise a rask in the Humanise.AI dashboard for a human to join and assist
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            Greetings... Let's get your contact details and I'll have someone join the chat to help out.
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form:
+              inputs:
+                # NOTE: the email type will ensure client-side validation of the email address, so the user can't enter something that's invalid
+                - type: text
+                  name: fullName
+                  label: "Full name"
+                - type: email
+                  name: email
+                  label: "Email address"
+    children:
+      # set the system variable for fullName and email, so that the user's identity is stored
+      - type: respond
+        addVariables:
+          - path: systemVariables.core.customer.email
+            value: "{{ systemVariables.temp.formResponseData.email }}"
+          - path: systemVariables.core.customer.fullName
+            value: "{{ systemVariables.temp.formResponseData.fullName }}"
+        tasks:
+          - attributes:
+              team: customer-support                
+        responses:
+          type: activity
+          values:
+            - text: I've raised a task for a member of staff to join and assist - they will be with you very shortly.
