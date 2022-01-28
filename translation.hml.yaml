@@ -1,0 +1,13 @@
+name: Translate
+description: This HML bot allows you to change the language used and automatically translate everything you enter into English and everything the bot responds with into your chosen language
+steps:
+  - id: start
+    type: respondAndWait
+    response: 
+      type: activity
+      value: 
+        text: Hello and welcome!
+        attachmentLayout: wideList
+        attachments:
+          - contentType: application/vnd.humanise-ai.card.request-translation
+    
