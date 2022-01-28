@@ -17,7 +17,7 @@ steps:
         response:
           type: jsExpression
           value: |
-            function timeConverter(timestamp){
+            function dateConverter(timestamp){
               var a = new Date(Date.parse(timestamp))
               var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
               var year = a.getFullYear()
@@ -26,7 +26,7 @@ steps:
               var time = date + ' ' + month + ' ' + year
               return time;
             }
-            var date = timeConverter( JSON.parse(systemVariables.entities)[0].value.value )
+            var date = dateConverter( JSON.parse(systemVariables.entities)[0].value.value )
             var response = {
               "text": `You said: ${date}`
             }
