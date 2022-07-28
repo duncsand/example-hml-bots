@@ -139,14 +139,10 @@ steps:
             type: nudgeAndWait
             channel: sms
             details:
-              # replace +123456 with your humanise.ai registered sms number
-              # as no phone number provided in a to: the email will be sent to the registered phone number of this user (ie, systemVariables.core.customer.phoneNumber)
-              from: "+123456"
-              # replace the https://humanise.ai/test with whatever website your humanise.ai chat will be installed on
               body: >
                 Hi {{ systemVariables.core.customer.fullName }},
-                Please press this link to verify your identity and continue the conversation: [[@async link('https://humanise.ai/test', 'VERIFIED_BY_SMS', 3600) /]]
-                The Humanise.AI Team
+                Please press this link to verify your identity and continue the conversation: [[@async link('https://humaniseai.webflow.io/demo/demo', 'VERIFIED_BY_SMS', 3600) /]]
+                The Humanise.AI Team  
             children:
               - id: hitAfterSMSNudge
                 type: respondAndWait

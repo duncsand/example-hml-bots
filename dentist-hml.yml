@@ -1,0 +1,135 @@
+name: Collect-and-verify-identity
+description: This HML snippet will only engage once it's verified that it has a working email or sms for the user.
+steps:
+  - id: start
+    type: respondAndWait
+    conditions:
+      - inputText: "?botEntryPoint=START"
+    responses:
+      type: activity
+      values:
+        - text: |
+            Welcome to Anderson's Dental Clinic, In order to help you set up an appointment, we need to be able to contact you. Which would you prefer?
+          suggestedActions:
+            actions:
+              - type: messageBack
+                title: Email
+                text: Email
+              - type: messageBack
+                title: SMS
+                text: SMS
+            inputState: disabled
+    children:
+      - type: respond
+        conditions:
+          - inputText: Email
+        goto: verifyViaSms
+      - type: respond
+        conditions:
+          - inputText: SMS
+        goto: verifyViaSms
+  # Verify via email
+  - id: verifyViaSms
+    type: respondAndWait
+    isPotentialStartStepConfig: false
+    responses:
+      type: activity
+      values:
+        - text: |
+            Please provide your name and phone number👇
+          suggestedActions:
+            actions: []
+            inputState: disabled
+            form:
+              inputs:
+                # NOTE: the email type will ensure client-side validation of the email address, so the user can't enter something that's invalid
+                - type: text
+                  name: fullName
+                  label: "Full name"
+                - type: phoneNumber
+                  name: phoneNumber
+                  label: "Mobile phone number"
+                  initialCountryCode: GB
+                  preferredCountryCodes: GB
+    children:
+      # set the system variable for fullName and email, so that the user's identity is stored
+      - type: respond
+        addVariables:
+          - path: systemVariables.core.customer.phoneNumber
+            value: "{{ systemVariables.temp.formResponseData.phoneNumber__formatted }}"
+          - path: systemVariables.core.customer.fullName
+            value: "{{ systemVariables.temp.formResponseData.fullName }}"
+        responses:
+          type: activity
+          values:
+            - text: I'm sending an SMS to {{ systemVariables.temp.formResponseData.phoneNumber__formatted }} – please press the link in it to confirm your identity.
+              suggestedActions:
+                actions: []
+                inputState: disabled
+                # we leave the input state disabled, so the bot cannot continue until the unique link in the email we're about to send has been pressed
+        children:
+          - id: sendVerificationSMS
+            type: nudgeAndWait
+            channel: sms
+            details:
+              body: >
+                Hi {{ systemVariables.core.customer.fullName }},
+                Please press this link to verify your identity and continue the conversation: [[@async link('https://humaniseai.webflow.io/demo/demo', 'VERIFIED_BY_SMS', 3600) /]]
+            children:
+              - id: hitAfterVerificationSMSNudge
+                type: respondAndWait
+                conditions:
+                  - inputText: "?botEntryPoint=VERIFIED_BY_SMS"
+                responses:
+                  type: activity
+                  values:
+                    - text: >
+                        Thank you, {{ systemVariables.core.customer.fullName }}, I verified your identity via SMS at {{ systemVariables.core.customer.phoneNumber }}
+                        We have the following availabilities:
+                      suggestedActions:
+                        actions:
+                          - type: messageBack
+                            title: "3 Aug @ 10:30am"
+                            text: "3 Aug @ 10:30am"
+                          - type: messageBack
+                            title: "4 Aug @ 2:45pm"
+                            text: "4 Aug @ 2:45m"
+                        inputState: disabled
+                children:
+                  - type: respondAndWait
+                    responses:
+                      type: activity
+                      values:
+                        - text: Thank you, we have confirmed your appointment for {{systemVariables.inputText}}
+                    tasks:
+                      - attributes:
+                          content:
+                            just: someTask
+                    waitForAction:
+                      type: event
+                      reference: primaryTag
+                      tagName: taskClosed
+                    children:
+                      - id: sendNpsSms
+                        type: nudgeAndWait
+                        channel: sms
+                        details:
+                          body: >
+                            Hi {{ systemVariables.core.customer.fullName }},
+                            Thanks for visiting Anderson Dental Clinic.
+                            Please let us know how we did here: [[@async link('https://humaniseai.webflow.io/demo/demo', 'TASK_COMPLETED_BY_SMS', 3600) /]]
+                        children:
+                          - id: hitAfterTaskCompletedSmsNudge
+                            type: respondAndWait
+                            conditions:
+                              - inputText: "?botEntryPoint=TASK_COMPLETED_BY_SMS"
+                            responses:
+                              type: activity
+                              values:
+                                - text: "Thank you, {{ systemVariables.core.customer.fullName }}, From 0-10 how likely would you be to recommend Anderson Dental Clinic to your family or friends?"
+                            children:
+                              - type: respondAndWait
+                                responses:
+                                  type: activity
+                                  values:
+                                    - text: Thank you for your feedback! 🎉🎊
